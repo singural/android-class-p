@@ -24,7 +24,7 @@
         android:id="@+id/button"
         android:layout_alignParentLeft="true"
         android:onClick="submit"
-        android:background="@drawable/images"
+        android:background="@drawable/button"
         android:layout_below="@+id/radioGroup" />
 
     <EditText
