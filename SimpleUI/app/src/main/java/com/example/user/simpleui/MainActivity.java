@@ -12,6 +12,9 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     TextView textView;
@@ -21,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     Spinner spinner;
 
     String selectedTea="black tea";
+
+    List<Order> orders=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +63,14 @@ public class MainActivity extends AppCompatActivity {
         setupSpinner();
     }
 
-    public void setupListView() //List列表，給一Array固定值
+    public void setupListView()
     {
+        /*
+       //List列表，給一Array固定值
         String[] data=new String[]{"black tea","green tea","1","2","3","4","5"};
         ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,data);
+        */
+        OrderAdapter adapter=new OrderAdapter(this,orders);
         listView.setAdapter(adapter);
     }
 
@@ -78,6 +87,15 @@ public class MainActivity extends AppCompatActivity {
         String text=editText.getText().toString(); //取得editText輸入的文字，並轉成String
 
         textView.setText(text);//將editText輸入的文字顯示在textView上
+
+        Order order=new Order();
+        order.note=text;
+        order.drinkName=selectedTea;
+        order.storeInfo=(String)spinner.getSelectedItem();
+
+        orders.add(order);
+
+        setupListView();
 
         editText.setText("");//清空editText
 
