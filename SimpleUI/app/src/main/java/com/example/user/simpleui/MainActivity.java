@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -14,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     EditText editText;
     RadioGroup radioGroup;
 
-    String selectedSex="男";
+    String selectedTea="black tea";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,13 +42,8 @@ public class MainActivity extends AppCompatActivity {
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(checkedId==R.id.maleRadioButton)
-                {
-                    selectedSex="男";
-                }else if(checkedId==R.id.femaleRadioButton)
-                {
-                    selectedSex="女";
-                }
+                RadioButton radioButton=(RadioButton)group.findViewById(checkedId);
+                selectedTea=radioButton.getText().toString();
             }
         });
     }
@@ -55,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     public void submit(View view)
     {
         String text=editText.getText().toString(); //取得editText輸入的文字，並轉成String
-        text=text + "  性別：" + selectedSex;
+
         textView.setText(text);//將editText輸入的文字顯示在textView上
 
         editText.setText("");//清空editText
