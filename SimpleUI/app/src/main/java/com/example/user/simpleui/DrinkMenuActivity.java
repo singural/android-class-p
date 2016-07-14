@@ -45,8 +45,6 @@ public class DrinkMenuActivity extends AppCompatActivity {
             drinks.add(drink);
 
         }
-
-
     }
 
 
