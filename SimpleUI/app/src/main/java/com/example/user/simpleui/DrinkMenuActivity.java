@@ -116,6 +116,13 @@ public class DrinkMenuActivity extends AppCompatActivity {
         finish(); //將資料帶回上層,所以finish
 
     }
+    public void cancel(View view)
+    {
+        Intent intent=new Intent();
+        setResult(RESULT_CANCELED,intent);
+        finish();
+
+    }
 
     @Override
     protected void onStart() {
