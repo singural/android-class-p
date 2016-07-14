@@ -9,6 +9,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,9 +102,21 @@ public class DrinkMenuActivity extends AppCompatActivity {
     {
         Intent intent=new Intent();
 
-        
+        JSONArray jsonArray=new JSONArray();
+
+        for(Drink drink:orders)
+        {
+            JSONObject jsonObject=drink.getJsonObject();
+            jsonArray.put(jsonObject);
+        }
+
+        intent.putExtra("results",jsonArray.toString());
+
+        setResult(RESULT_OK,intent);
+        finish(); //將資料帶回上層,所以finish
 
     }
+
     @Override
     protected void onStart() {
         super.onStart();
