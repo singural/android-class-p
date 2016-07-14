@@ -31,6 +31,8 @@ public class DrinkMenuActivity extends AppCompatActivity {
         totalTextView=(TextView)findViewById(R.id.totalTextView);
         drinkMenuListView=(ListView)findViewById(R.id.drinkMenuListView);
 
+        setupDrinkMenuListView();
+
     }
 
     private void setData()
@@ -47,6 +49,11 @@ public class DrinkMenuActivity extends AppCompatActivity {
         }
     }
 
+    private void setupDrinkMenuListView()
+    {
+        DrinkAdapter adapter=new DrinkAdapter(this,drinks);
+        drinkMenuListView.setAdapter(adapter);
+    }
 
     @Override
     protected void onStart() {
