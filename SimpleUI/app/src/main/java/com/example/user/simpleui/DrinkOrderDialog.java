@@ -11,6 +11,10 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 
 /**
@@ -27,9 +31,19 @@ public class DrinkOrderDialog extends DialogFragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    NumberPicker mediumNumberPicker;
+    NumberPicker largeNumberPicker;
+
+    RadioGroup iceRadioGroup;
+    RadioGroup sugarRadioGroup;
+
+    EditText noteEditText;
+
+    private DrinkOrder drinkOrder;
+
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    //private String mParam1;
+    //private String mParam2;
 
     private onDrinkOrderListener mListener;
 
@@ -76,7 +90,7 @@ public class DrinkOrderDialog extends DialogFragment {
         {
             Bundle bundle=getArguments();
             String data=bundle.getString(ARG_PARAM1);
-            DrinkOrder drinkOrder=DrinkOrder.newInstanceWithData(data);
+            drinkOrder=DrinkOrder.newInstanceWithData(data);
             if(drinkOrder==null)
             {
                 throw new RuntimeException("Instance Drink Order Fail");
@@ -89,12 +103,20 @@ public class DrinkOrderDialog extends DialogFragment {
         View contentView=getActivity().getLayoutInflater().inflate(R.layout.fragment_drink_order_dialog,null);
 
         alertDialogBuilder.setView(contentView)
-                            .setTitle("Hello Dialog")
+                          .setTitle(drinkOrder.drink.name)
                           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                               @Override
                               public void onClick(DialogInterface dialog, int which) {
+                                  drinkOrder.mNumber=mediumNumberPicker.getValue();
+                                  drinkOrder.lNumber=largeNumberPicker.getValue();
+                                  drinkOrder.note=noteEditText.getText().toString();
+                                  drinkOrder.ice=getSelectedTextFromRadioGroup(iceRadioGroup);
+                                  drinkOrder.sugar=getSelectedTextFromRadioGroup(sugarRadioGroup);
 
-
+                                  if(mListener !=null)
+                                  {
+                                      mListener.onDrinkOrderFinished(drinkOrder);
+                                  }
                               }
                           })
                           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -104,7 +126,28 @@ public class DrinkOrderDialog extends DialogFragment {
                               }
                           });
 
+        mediumNumberPicker=(NumberPicker)contentView.findViewById(R.id.mediumNumberPicker);
+        mediumNumberPicker.setMaxValue(100);
+        mediumNumberPicker.setMinValue(0);
+        mediumNumberPicker.setValue(drinkOrder.mNumber);
+
+        largeNumberPicker=(NumberPicker)contentView.findViewById(R.id.largeNumberPicker);
+        largeNumberPicker.setMaxValue(100);
+        largeNumberPicker.setMinValue(0);
+        largeNumberPicker.setValue(drinkOrder.lNumber);
+
+        iceRadioGroup=(RadioGroup)contentView.findViewById(R.id.iceRadioGroup);
+        sugarRadioGroup=(RadioGroup)contentView.findViewById(R.id.sugarRadioGroup);
+        noteEditText=(EditText)contentView.findViewById(R.id.noteEditText);
+
         return alertDialogBuilder.create();
+    }
+
+    private String getSelectedTextFromRadioGroup(RadioGroup radioGroup) //回傳被點選Radio button上的文字
+    {
+        int checkedRadioButtonId=radioGroup.getCheckedRadioButtonId();
+        RadioButton checkedRadioButtn=(RadioButton)radioGroup.findViewById(checkedRadioButtonId);
+        return checkedRadioButtn.getText().toString();
     }
 
     @Override
