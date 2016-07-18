@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -72,6 +73,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //home work ************************************************
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                editor.putInt("spinner",position);
+                editor.commit();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        //home work *****************************************************
+
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -91,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
 
         setupListView();
         setupSpinner();
-
-
+        spinner.setSelection(sharedPreferences.getInt("spinner",0)); //homework add
+        
         Log.d("Debug","MainActivity OnCreate");
 
     }
