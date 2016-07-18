@@ -1,6 +1,7 @@
 package com.example.user.simpleui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +31,11 @@ public class MainActivity extends AppCompatActivity {
 
     String selectedTea="black tea";
 
+    String menuResults="";
+
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+
     List<Order> orders=new ArrayList<>();
 
     @Override
@@ -43,9 +49,19 @@ public class MainActivity extends AppCompatActivity {
         listView=(ListView)findViewById(R.id.listView);
         spinner=(Spinner)findViewById(R.id.spinner);
 
+        sharedPreferences=getSharedPreferences("setting",MODE_PRIVATE); //mode_private覆蓋 ,mode_append  累加上去
+        editor=sharedPreferences.edit();
+        
+
+        editText.setText(sharedPreferences.getString("editText",""));
         editText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) { //打完鍵盤會 call onKey的Function
+
+                String text=editText.getText().toString();
+                editor.putString("editText",text);
+                editor.commit(); //寫入edittext的xml裡面
+
                 //按Enter及按下按鈕的瞬間
                 if(keyCode==KeyEvent.KEYCODE_ENTER&&event.getAction()==KeyEvent.ACTION_DOWN)
                 {
@@ -99,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         Order order=new Order();
         order.note=text;
-        order.drinkName=selectedTea;
+        order.menuResults=menuResults;
         order.storeInfo=(String)spinner.getSelectedItem();
 
         orders.add(order);
@@ -107,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         setupListView();
 
         editText.setText("");//清空editText
+        menuResults=""; //清空menuResults
 
     }
 
@@ -126,7 +143,8 @@ public class MainActivity extends AppCompatActivity {
             if(resultCode==RESULT_OK)
             {
                 Toast.makeText(this,"完成菜單",Toast.LENGTH_SHORT).show();
-                textView.setText(data.getStringExtra("results"));
+                menuResults=(data.getStringExtra("results"));
+                //textView.setText(data.getStringExtra("results"));
             }
 
             if(resultCode==RESULT_CANCELED)
