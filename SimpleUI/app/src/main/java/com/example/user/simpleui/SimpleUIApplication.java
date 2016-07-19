@@ -18,6 +18,7 @@ public class SimpleUIApplication extends Application {
                 .applicationId("AMZonO4reukGZVjpdRDNDrpzeQKxWm7S65NMeImw")
                 .server("https://parseapi.back4app.com/")
                 .clientKey("NryzXhulPTMEkIJuNlM71ByZg6N181qCYxmIkB6k") //公開的不需要clientKey
+                .enableLocalDataStore() //開啟local database的功能
                 .build()
         );
     }
