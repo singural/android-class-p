@@ -102,46 +102,46 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        String history=Utils.readFile(this,"history");
-        String[] datas=history.split("\n");
-        for (String data:datas)
-        {
-            Order order=Order.newInstanceWithData(data);
-            if(order != null)
-                orders.add(order);
-        }
+//        String history=Utils.readFile(this,"history");
+//        String[] datas=history.split("\n");
+//        for (String data:datas)
+//        {
+//            Order order=Order.newInstanceWithData(data);
+//            if(order != null)
+//                orders.add(order);
+//        }
 
         setupListView();
         setupSpinner();
         spinner.setSelection(sharedPreferences.getInt("spinner",0)); //homework add
 
-        ParseObject parseObject=new ParseObject("Test");
-        parseObject.put("foo","bar"); //put(欄位,值)
-        parseObject.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(e==null)
-                Toast.makeText(MainActivity.this,"上傳成功",Toast.LENGTH_LONG).show();
-
-            }
-        }
-        );
-
-        ParseQuery<ParseObject> query= new ParseQuery<ParseObject>("Test");
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if(e==null)
-                {
-                    for (ParseObject object:objects)
-                    {
-                        Toast.makeText(MainActivity.this,object.getString("foo"),Toast.LENGTH_LONG).show();
-                    }
-                }
-
-            }
-
-        });
+//        ParseObject parseObject=new ParseObject("Test");
+//        parseObject.put("foo","bar"); //put(欄位,值)
+//        parseObject.saveInBackground(new SaveCallback() {
+//            @Override
+//            public void done(ParseException e) {
+//                if(e==null)
+//                Toast.makeText(MainActivity.this,"上傳成功",Toast.LENGTH_LONG).show();
+//
+//            }
+//        }
+//        );
+//
+//        ParseQuery<ParseObject> query= new ParseQuery<ParseObject>("Test");
+//        query.findInBackground(new FindCallback<ParseObject>() {
+//            @Override
+//            public void done(List<ParseObject> objects, ParseException e) {
+//                if(e==null)
+//                {
+//                    for (ParseObject object:objects)
+//                    {
+//                        Toast.makeText(MainActivity.this,object.getString("foo"),Toast.LENGTH_LONG).show();
+//                    }
+//                }
+//
+//            }
+//
+//        });
 
         Log.d("Debug","MainActivity OnCreate");
 
@@ -154,8 +154,15 @@ public class MainActivity extends AppCompatActivity {
         String[] data=new String[]{"black tea","green tea","1","2","3","4","5"};
         ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,data);
         */
-        OrderAdapter adapter=new OrderAdapter(this,orders);
-        listView.setAdapter(adapter);
+        Order.getOrdersFromRemote(new FindCallback<Order>() { //取得網路訂單
+            @Override
+            public void done(List<Order> objects, ParseException e) {
+                orders=objects;
+                OrderAdapter adapter=new OrderAdapter(MainActivity.this,orders);
+                listView.setAdapter(adapter);
+            }
+        });
+
     }
 
     public void setupSpinner() //下拉選單設定，使用Array方式給值(array.xml)使變更容易
@@ -173,9 +180,10 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(text);//將editText輸入的文字顯示在textView上
 
         Order order=new Order();
-        order.note=text;
-        order.menuResults=menuResults;
-        order.storeInfo=(String)spinner.getSelectedItem();
+        order.setNote(text);
+        order.setMenuResults(menuResults);
+        order.setStoreInfo((String)spinner.getSelectedItem());
+        order.saveInBackground();
 
         orders.add(order);
 
