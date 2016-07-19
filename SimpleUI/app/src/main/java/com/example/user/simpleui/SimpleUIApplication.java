@@ -14,6 +14,7 @@ public class SimpleUIApplication extends Application {
         super.onCreate();
 
         ParseObject.registerSubclass(Order.class); //註冊可以上傳的Order
+        ParseObject.registerSubclass(Drink.class);
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("AMZonO4reukGZVjpdRDNDrpzeQKxWm7S65NMeImw")
                 .server("https://parseapi.back4app.com/")
