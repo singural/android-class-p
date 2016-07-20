@@ -114,6 +114,15 @@ public class MainActivity extends AppCompatActivity {
 //                orders.add(order);
 //        }
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Order order=(Order)parent.getAdapter().getItem(position);
+                goToDetail(order);
+            }
+        });
+
+
         setupListView();
         setupSpinner();
         spinner.setSelection(sharedPreferences.getInt("spinner",0)); //homework add
@@ -212,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
         order.pinInBackground("Order"); //將data 儲存local端
         //order.saveEventually(); //無網路時data會先存在local端,等有網路時再上傳data
-        order.saveEventually(new SaveCallback() {
+        order.saveEventually(new SaveCallback() { //確保local端資料上傳完成後，才下載最新data下來
             @Override
             public void done(ParseException e) {
                 setupListView();
@@ -234,6 +243,16 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setClass(this,DrinkMenuActivity.class);
         startActivityForResult(intent,REQUEST_CODE_DRINK_MENU_ACTIVITY);
+    }
+
+    public void goToDetail(Order order)
+    {
+        Intent intent=new Intent();
+        intent.setClass(this,OrderDetailActivity.class);
+        intent.putExtra("note",order.getNote());
+        intent.putExtra("storeInfo",order.getStoreInfo());
+        intent.putExtra("menuResults",order.getMenuResults());
+        startActivity(intent);
     }
 
     @Override
