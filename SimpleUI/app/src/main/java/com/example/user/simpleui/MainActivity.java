@@ -211,13 +211,18 @@ public class MainActivity extends AppCompatActivity {
         order.setStoreInfo((String)spinner.getSelectedItem());
 
         order.pinInBackground("Order"); //將data 儲存local端
-        order.saveEventually(); //無網路時data會先存在local端,等有網路時再上傳data
+        //order.saveEventually(); //無網路時data會先存在local端,等有網路時再上傳data
+        order.saveEventually(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                setupListView();
+            }
+        });
 
         orders.add(order);
 
         Utils.writeFile(this,"history",order.toData() + "\n");
 
-        setupListView();
 
         editText.setText("");//清空editText
         menuResults=""; //清空menuResults
