@@ -1,11 +1,14 @@
 package com.example.user.simpleui;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.logging.Handler;
 
 public class OrderDetailActivity extends AppCompatActivity {
 
@@ -37,6 +40,22 @@ public class OrderDetailActivity extends AppCompatActivity {
             }
         }
         menuResultsTextView.setText(text);
-
     }
+
+    public static class GeoCodingTask extends AsyncTask<String,Void,Bitmap>
+    {
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            String address=params[0];
+            double[] latlng=Utils.getLatLngFromGoogleMapAPI(address);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+        }
+    }
+
 }
