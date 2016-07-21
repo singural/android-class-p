@@ -202,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setupSpinner() //下拉選單設定，使用Array方式給值(array.xml)使變更容易
     {
+//        String[] data={"台大店","公館店","西門店","復興店","輔大店","永大店"};
         String[] data=getResources().getStringArray(R.array.storeInfos);
         ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
         spinner.setAdapter(adapter);
