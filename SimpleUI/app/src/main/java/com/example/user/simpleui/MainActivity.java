@@ -205,6 +205,31 @@ public class MainActivity extends AppCompatActivity {
         String[] data=getResources().getStringArray(R.array.storeInfos);
         ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
         spinner.setAdapter(adapter);
+//*************home work
+//
+//        ParseQuery<ParseObject> query= new ParseQuery<ParseObject>("StoreInfo");
+//        query.findInBackground(new FindCallback<ParseObject>() {
+//            String[] name = new String[1];
+//            @Override
+//            public void done(List<ParseObject> objects, ParseException e) {
+//                if (e == null) {
+//                    for (ParseObject object : objects) {
+//                        name[0] =object.getString("name");
+//                        String address=object.getString("address");
+//                        StoreInfo storeInfo=new StoreInfo();
+//                        storeInfo.setName(name[0]);
+//                        storeInfo.setAddress(address);
+////
+//                    }
+//                    ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, name);
+//                    spinner.setAdapter(adapter);
+//                }
+//
+//            }
+//        });
+
+//*************home work
+
     }
 
 
