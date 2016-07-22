@@ -8,11 +8,22 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.logging.Handler;
 
-public class OrderDetailActivity extends AppCompatActivity {
+public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingResponse{
+
+    GoogleMap googleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,35 +55,39 @@ public class OrderDetailActivity extends AppCompatActivity {
         }
         menuResultsTextView.setText(text);
 
-        (new GeoCodingTask(staticMapView)).execute("台北市大安區羅斯福路四段一號");
-    }
+        MapFragment mapFragment=(MapFragment)getFragmentManager().findFragmentById(R.id.mapFragment);
 
-    public static class GeoCodingTask extends AsyncTask<String,Void,Bitmap>
-    {
-        WeakReference<ImageView> imageViewWeakReference;
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            String address=params[0];
-            double[] latlng=Utils.getLatLngFromGoogleMapAPI(address);
-            return Utils.getStaticMap(latlng);
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
-            if(imageViewWeakReference.get() !=null && bitmap !=null) //null則不載入圖片
-            {
-                ImageView imageView=imageViewWeakReference.get();
-                imageView.setImageBitmap(bitmap);
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap map) {
+                googleMap=map;
+                (new GeoCodingTask(OrderDetailActivity.this)).execute("台北市大安區羅斯福路四段一號");
             }
-        }
+        });
 
-        public GeoCodingTask(ImageView imageView)
+
+
+}
+
+    @Override
+    public void reponseWithGeoCodingResults(LatLng latLng) {
+        if(googleMap!=null)
         {
-            this.imageViewWeakReference= new WeakReference<ImageView>(imageView);
-        }
+            CameraUpdate cameraUpdate= CameraUpdateFactory.newLatLngZoom(latLng,17);
+//            googleMap.animateCamera(cameraUpdate);
+            MarkerOptions markerOptions=new MarkerOptions().position(latLng).title("台灣大學").snippet("Hello Google Map");
+            googleMap.addMarker(markerOptions);
 
+            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    return false;
+                }
+            });
+
+//            googleMap.moveCamera(cameraUpdate);
+        }
     }
+
 
 }

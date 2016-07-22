@@ -202,10 +202,24 @@ public class MainActivity extends AppCompatActivity {
 
     public void setupSpinner() //下拉選單設定，使用Array方式給值(array.xml)使變更容易
     {
-//        String[] data={"台大店","公館店","西門店","復興店","輔大店","永大店"};
-        String[] data=getResources().getStringArray(R.array.storeInfos);
-        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
-        spinner.setAdapter(adapter);
+        ParseQuery<ParseObject> parseQuery=new ParseQuery<ParseObject>("StoreInfo");
+        parseQuery.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                List<String> storeInfos=new ArrayList<String>();
+                for(ParseObject object:objects)
+                {
+                    String storeInfo=object.getString("name")+","+object.getString("address");
+                    storeInfos.add(storeInfo);
+                    ArrayAdapter<String> adapter=new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_item,storeInfos);
+                    spinner.setAdapter(adapter);
+                }
+            }
+        });
+
+//        String[] data=getResources().getStringArray(R.array.storeInfos);
+//        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
+//        spinner.setAdapter(adapter);
 //*************home work
 //
 //        ParseQuery<ParseObject> query= new ParseQuery<ParseObject>("StoreInfo");
