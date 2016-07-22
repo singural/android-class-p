@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -16,6 +17,11 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.directions.route.AbstractRouting;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -29,19 +35,27 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Handler;
 
-public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,LocationListener {
+public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,LocationListener, RoutingListener {
 
     final static int ACCESS_FINE_LOCATION_REQUEST_CODE=1;
 
     GoogleMap googleMap;
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
+
+    LatLng storeLocation;
+
     Marker marker;
+
+    List<Polyline> polylines =new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,10 +113,13 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
             googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
+                    CameraUpdate cp=CameraUpdateFactory.newLatLngZoom(marker.getPosition(),21);
+                    googleMap.moveCamera(cp);
                     return false;
                 }
             });
 
+            storeLocation=latLng; //aaaa
 //            googleMap.moveCamera(cameraUpdate);
             createGoogleAPIClient();
         }
@@ -136,6 +153,7 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
         }
 
         createLocationRequest();//固定一時間重覆call所在位置
+
         if(locationRequest!=null)
         {
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,locationRequest,this);
@@ -151,6 +169,12 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
         }
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start,17));
 
+        Routing routing=new Routing.Builder()
+                .travelMode(AbstractRouting.TravelMode.WALKING)
+                .waypoints(start,storeLocation)
+                .withListener(this)
+                .build();
+        routing.execute();
     }
 
     @Override
@@ -201,6 +225,45 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
         {
             marker.setPosition(currentLatLng);
         }
+
+        if(polylines.size()>0)
+        {
+            for(Polyline polyline:polylines)
+            {
+                List<LatLng> points=polyline.getPoints();
+
+                int index=-1;
+                for(int i=0;i<points.size();i++)
+                {
+                    if(i!=points.size() -1)
+                    {
+                        LatLng point1=points.get(i);
+                        LatLng point2=points.get(i+1);
+
+                        Double maxLat=Math.max(point1.latitude,point2.latitude)+0.0001;
+                        Double minLat=Math.min(point1.latitude,point2.latitude)-0.0001;
+                        Double maxLng=Math.max(point1.longitude,point2.longitude)+0.0001;
+                        Double minLng=Math.min(point1.longitude,point2.longitude)-0.0001;
+                        if(currentLatLng.latitude>=minLat && currentLatLng.latitude<maxLat && currentLatLng.longitude>=minLng && currentLatLng.longitude<maxLng)
+                        {
+                            index=i;
+                            break;
+                        }
+
+                    }
+                }
+
+                if(index != -1)
+                {
+                    for(int i=index;i>=0;i--)
+                    {
+                        points.remove(0);
+                    }
+                    points.set(0,currentLatLng);
+                    polyline.setPoints(points);
+                }
+            }
+        }
     }
 
     @Override
@@ -220,4 +283,46 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
         }
     }
 
+    @Override
+    public void onRoutingFailure(RouteException e) {
+
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> routes, int i) {
+
+        if(polylines.size()>0)
+        {
+            for (Polyline polyline:polylines)
+            {
+                polyline.remove();
+            }
+            polylines.clear();
+        }
+
+        for(int index=0; index<routes.size();index++)
+        {
+            List<LatLng> points=routes.get(index).getPoints();
+
+            PolylineOptions polylineOptions=new PolylineOptions();
+            polylineOptions.addAll(points);
+            polylineOptions.color(Color.GREEN);
+            polylineOptions.width(10);
+
+            Polyline polyline=googleMap.addPolyline(polylineOptions);
+            polylines.add(polyline);
+
+        }
+
+    }
+
+    @Override
+    public void onRoutingCancelled() {
+
+    }
 }
