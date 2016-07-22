@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -32,12 +34,14 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.logging.Handler;
 
-public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,LocationListener {
 
     final static int ACCESS_FINE_LOCATION_REQUEST_CODE=1;
 
     GoogleMap googleMap;
     GoogleApiClient googleApiClient;
+    LocationRequest locationRequest;
+    Marker marker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +135,14 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
             return;
         }
 
+        createLocationRequest();//固定一時間重覆call所在位置
+        if(locationRequest!=null)
+        {
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,locationRequest,this);
+        }
+
         Location location=LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+
 
         LatLng start=new LatLng(25.0186348,121.5398379);
         if(location!=null)
@@ -164,4 +175,49 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
+    private void createLocationRequest()
+    {
+        if(locationRequest==null)
+        {
+            locationRequest=new LocationRequest();
+            locationRequest.setInterval(1000); //一秒更新一次使用者位置
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,locationRequest,this);
+
+        }
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location){
+        LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17));
+        if(marker==null){
+            MarkerOptions markerOptions= new MarkerOptions().position(currentLatLng).title("台灣大學").snippet("Hello Google Map");
+            marker=googleMap.addMarker(markerOptions);
+        }
+        else
+        {
+            marker.setPosition(currentLatLng);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(googleApiClient!=null){
+            googleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(googleApiClient!=null)
+        {
+            googleApiClient.disconnect();
+        }
+    }
+
 }
